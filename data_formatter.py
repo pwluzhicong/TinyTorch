@@ -9,6 +9,10 @@ wdbc.columns = ["ID", "Diagnosis",
 label = (wdbc["Diagnosis"] == 'M').astype(int)
 features = wdbc[wdbc.columns[2:]].copy()
 new_db = features
+
+for col in new_db.columns:
+    new_db.loc[:, col] = (new_db[col] - new_db[col].mean()) / new_db[col].std(ddof=0)
+
 new_db.loc[:, "label"] = label
 
 new_db.to_csv("./data/BreastCancer.data",sep=",", index=None)
@@ -26,7 +30,7 @@ d.loc[:, "label"] = parkinsons["total_UPDRS"]
 
 
 for col in d.columns:
-    d[col] = (d[col] - d[col].mean()) / d[col].std(ddof=0)
+    d.loc[:, col] = (d[col] - d[col].mean()) / d[col].std(ddof=0)
 
 d.to_csv("./data/Parkinsons.data",sep=",", index=None)
 

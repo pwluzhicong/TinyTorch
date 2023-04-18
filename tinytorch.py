@@ -81,12 +81,28 @@ class Tensor:
             
         return Tensor(res_values, requires_grad, dependency)
     
+    def l2_norm(self, alpha):
+        v = np.expand_dims(self.values.flatten(), -1)
+        # print(v.shape)
+        res_values = v.T @ v / 2
+        return Tensor(res_values, self.requires_grad, [{"tensor":self, "grad_fn":lambda grad: grad*alpha * self.values}])
+    
+    def log(self):
+        return Tensor(np.log(self.values), self.requires_grad,  [{"tensor":self, "grad_fn":lambda grad: grad / self.values}])
+    
+    
     @property
     def T(self):
         return Tensor(self.values.T, self.requires_grad, [{"tensor": self, "grad_fn":lambda grad:grad.T}])
     
     def scalar_mul(self, alpha):
         return Tensor(self.values*alpha, self.requires_grad, [{"tensor": self, "grad_fn":lambda grad:grad*alpha}])
+    
+    def scalar_add(self, alpha):
+        return Tensor(self.values+alpha, self.requires_grad, [{"tensor": self, "grad_fn":lambda grad:grad}])
+    
+    def __neg__(self):
+        return self.scalar_mul(-1)
     
     def __sub__(self, x):
         return self.__add__(x.scalar_mul(-1))
@@ -117,7 +133,11 @@ def zeros_like(t):
 def Sigmoid(x):
     val = 1 / (1 + np.exp(-x.values))
     return Tensor(val, x.requires_grad, [{"tensor": x, "grad_fn": lambda grad: val*(1-val)*grad}])
-        
+    
+def Tanh(x):
+    val = np.tanh(x.values)
+    return Tensor(val, x.requires_grad, [{"tensor": x, "grad_fn": lambda grad: (1-val**2)*grad}]) 
+    
     
 class Parameter(Tensor):
     param_list = []
@@ -177,7 +197,10 @@ class MLP:
         for i in range(len(size_list)-1):
             self.layers.append(Linear(size_list[i], size_list[i+1], use_bias=use_bias))
             
-        self.activative_func = activative_func
+        if type(activative_func) == str:
+            self.activative_func = get_activate_function_by_name(activative_func)
+        else:
+            self.activative_func = activative_func
     
     def forward(self, input_tensor):
         res = input_tensor
@@ -222,4 +245,17 @@ class MomentumOptimizer:
             
 def square_loss(y_pred, y):
     delta_y = y_pred - y
-    return delta_y.T @ delta_y
+    return (delta_y.T @ delta_y).scalar_mul(1/y_pred.shape[0])
+
+
+def log_binary_loss(y_pred, y):
+    return (- y.T @ Sigmoid(y_pred).log() + (y.scalar_add(-1)).T @ (-(Sigmoid(y_pred).scalar_add(-1))).log()).scalar_mul(1/y_pred.shape[0])
+
+
+
+def get_activate_function_by_name(x):
+    if x.lower() == "sigmoid":
+        return Sigmoid
+    elif x.lower() == "tanh":
+        return Tanh
+    # elif x.lower() == ""

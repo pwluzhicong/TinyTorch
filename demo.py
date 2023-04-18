@@ -13,12 +13,11 @@ Parameter.clear()
 mlp = MLP(10, 1, [16, 8], Sigmoid, use_bias=False)
 output_layer = Linear(8,1, use_bias=False)
 
-optimizer = MomentumOptimizer(Parameter.param_list, 1e-3, 0.9)
+optimizer = MomentumOptimizer(Parameter.param_list, 1e-2, 0.8)
 
 params_raw = optimizer.params[0].values.copy()
 
 input_x = Tensor(x, requires_grad=False)
-
 output_y = Tensor(y, requires_grad=False)
 
 for i in range(10000):
