@@ -35,9 +35,14 @@ def train_func(**params):
     output_layer = Linear(num_units[-1], 1, use_bias=False)
     
     optimizer = MomentumOptimizer(Parameter.param_list, learning_rate, momentum)
-
+    
+    result = {}
+    result["params"] = params
+    result["reports"] = []
     
     for epoch in range(num_epochs):
+        
+        
         
         for batch_idx, (batch_X, batch_y) in enumerate(DataLoader(train_data, shuffle=True, batch_size=16)):
             # print(batch_idx)
@@ -60,6 +65,8 @@ def train_func(**params):
             
         # if(epoch % 10 == 0):
         if epoch % log_step == 0:
+            report_dict = {}
+            report_dict["epoch"] = epoch
             print("Epoch %d" % epoch)
             for batch_idx, (batch_X, batch_y) in enumerate(DataLoader(train_data, shuffle=True, batch_size=train_data.shape[0])):
                 input_x = Tensor(batch_X, requires_grad=False)
@@ -74,6 +81,8 @@ def train_func(**params):
 
                 # total_loss = loss + l2_loss
                 print("train_loss:", loss.values)
+                report_dict["train_loss"] = loss.values.mean()
+                report_dict["l2_loss"] = loss.values.mean()
                 # print("train_l2_loss:", l2_loss.values)
             
             # print("Epoch %d" % epoch)
@@ -90,7 +99,12 @@ def train_func(**params):
 
                 # loss = loss + l2_loss
                 print("test_loss:", loss.values)
+                report_dict["test_loss"] = loss.values.mean()
                 # print("test_l2_loss:", l2_loss.values)
 #             if(batch_idx % 10) == 0:
 #                 print(epoch, batch_idx, loss.values)
+
+            result["reports"].append(report_dict)
+    
+    return result
     
