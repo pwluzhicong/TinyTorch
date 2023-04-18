@@ -21,6 +21,7 @@ def arguments():
     arg_parser.add_argument("--momentum", dest="momentum", type=float, default=0.9)
     arg_parser.add_argument("--l2_norm", dest="l2_norm", type=float, default=1e-3)
     arg_parser.add_argument("--test_ratio", dest="test_ratio", type=float, default=0.2)
+    arg_parser.add_argument("--plot_to_file", dest="plot_to_file", type=str, default=None)
 
 def main():
     arguments()
