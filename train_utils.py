@@ -31,7 +31,7 @@ def train_func(**params):
     print(train_data.shape, test_data.shape)
     
     Parameter.clear()
-    mlp = MLP(train_data.shape[-1]-1, 1, num_units, "Sigmoid", use_bias=False)
+    mlp = MLP(train_data.shape[-1]-1, 1, num_units, activation_func, use_bias=False)
     output_layer = Linear(num_units[-1], 1, use_bias=False)
     
     optimizer = MomentumOptimizer(Parameter.param_list, learning_rate, momentum)
@@ -44,7 +44,7 @@ def train_func(**params):
         
         
         
-        for batch_idx, (batch_X, batch_y) in enumerate(DataLoader(train_data, shuffle=True, batch_size=16)):
+        for batch_idx, (batch_X, batch_y) in enumerate(DataLoader(train_data, shuffle=True, batch_size=batch_size)):
             # print(batch_idx)
             input_x = Tensor(batch_X, requires_grad=False)
             output_y = Tensor(np.expand_dims(batch_y,-1), requires_grad=False)
