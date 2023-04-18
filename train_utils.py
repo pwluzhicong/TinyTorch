@@ -105,6 +105,20 @@ def train_func(**params):
 #                 print(epoch, batch_idx, loss.values)
 
             result["reports"].append(report_dict)
+            
+    if "plot_to_file" in params and params["plot_to_file"] is not None:
+        import seaborn as sns
+        import matplotlib.pyplot as plt
+
+        x = [o["epoch"] for o in result["reports"]]
+        y1 = [o["train_loss"] for o in result["reports"]]
+        y2 = [o["test_loss"] for o in result["reports"]]
+        sns.lineplot(x=x, y=y1, label="train_loss")
+        sns.lineplot(x=x, y=y2, label="test_loss")
+        
+        plt.xlabel("num_epochs")
+        plt.ylabel(params["loss_func"])
+        plt.savefig(params["plot_to_file"])
     
     return result
     
