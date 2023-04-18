@@ -13,7 +13,7 @@ class Dataset(object):
 
 
 class DataLoader(object):
-    def __init__(self, dataset: Dataset, batch_size=None, shuffle=False, random_state=None) -> None:
+    def __init__(self, dataset, batch_size=None, shuffle=False, random_state=None) -> None:
         self.dataset = dataset
         self.batch_size = batch_size
         self.shuffle_flag = shuffle
